@@ -1,0 +1,29 @@
+[package]
+name = "Kabua"
+version = "0.1.0"
+description = "Kabua Launcher - A Custom Launcher for BDO"
+authors = ["farhannz"]
+license = ""
+repository = ""
+default-run = "Kabua"
+edition = "2021"
+rust-version = "1.60"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+tauri-build = { version = "1.5.4", features = [] }
+
+[dependencies]
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+tauri = { version = "1.7.2", features = ["api-all"] }
+headless_chrome = {git = "https://github.com/rust-headless-chrome/rust-headless-chrome", features = ["fetch"] }
+libloading = "0.8"
+reqwest = {version = "0.12.7", features = ["blocking", "cookies"] }
+
+[features]
+# this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.
+# If you use cargo directly instead of tauri's cli you can use this feature flag to switch between tauri's `dev` and `build` modes.
+# DO NOT REMOVE!!
+custom-protocol = [ "tauri/custom-protocol" ]
