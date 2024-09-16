@@ -48,47 +48,6 @@ export const LoginForm = () => {
     "resultData": string,
     "isAutoLoginSuccess": boolean
   }
-  // TODO: Get login code using api instead of simulate using headless chrome
-  const handleLogin = async (state:string, auth_info:string) => {
-    try{
-      const query_param = {
-        _authAction : "1",
-        _authPlatform: "2",
-        _returnUrl: `${envConfig.ACCOUNT.URL}Member/Login/LoginPending`,
-        _state: state,
-        _loginPosition: "Account",
-        hdAccountUrl: envConfig.ACCOUNT.URL,
-        _useIPCheck: "false",
-        _email : email,
-        _password: password,
-        _useAutoLogin : "false",
-        _isRemember: "false",
-        "h-captcha-response" : "",
-        "X-Requested-With": "XMLHttpRequest"
-      }
-      const headers = {
-        "Cookie": auth_info,
-        "User-Agent" : "HTTPie"
-      }
-      console.log(headers)
-      const response = await fetch(`${envConfig.ACCOUNT.URL}Member/SignIn/PssSignInProcess`, {
-        method: "POST", 
-        headers: headers, 
-        responseType: ResponseType.JSON, 
-        body: Body.form(query_param)
-      })
-
-      console.log(response)
-      if (response.status != 200) {
-        throw "Failed while getting token"
-      }
-      const data = response.data as LoginResponse
-      return data
-    } catch (error) {
-      setFailed(true)
-      console.log(error)
-    }
-  }
 
   const getCodeFromUrl = async (queryString:string) => {
     try {
