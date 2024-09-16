@@ -1,46 +1,10 @@
 use std::error::Error;
 use std::time::Duration;
 use std::ffi::CString;
-use headless_chrome::{Browser, LaunchOptions};
 use libloading;
 use std::{str::FromStr, sync::Arc};
 use reqwest::{self, cookie::CookieStore};
 
-
-fn perform_login_browser(url: &str, email: &str, password: &str) -> Result<String, Box<dyn Error>> {
-    println!("{}", url);
-    #[cfg(debug_assertions)]
-    let _headless = false;
-
-    #[cfg(not(debug_assertions))]
-    let _headless = true;
-
-    let browser = Browser::new(LaunchOptions {
-        headless: _headless,
-        ..Default::default()
-    })?;
-    let tab = browser.new_tab()?;
-
-    tab.navigate_to(url)?;
-    tab.wait_for_element("input#isIpCheck")?.click()?;
-    tab.wait_until_navigated()?;
-    tab.wait_for_element("input#_email")?.click()?;
-    tab.wait_until_navigated()?;
-    tab.send_character(email)?;
-    tab.find_element("input#_password")?.click()?;
-    tab.wait_until_navigated()?;
-    tab.send_character(password)?;
-    let capcha = tab.wait_for_element_with_custom_timeout("div.googleRobot.recapcha", Duration::from_secs(5));
-    // To do: Handle if there is capcha
-    // if capcha.is_ok() {
-    //     println!("There is capcha, please solved it first");
-    //     let mut buffer = String::new();
-    //     io::stdin().read_line(&mut buffer)?;
-    // }
-    tab.press_key("Enter")?;
-    let _load_bar = tab.wait_for_element("div#loadingLayer")?;
-    Ok(tab.get_url())
-}
 
 fn call_dynamic(path: String, filename: String, args: String, is_admin: bool) -> Result<i64, Box<dyn std::error::Error>> {
     unsafe {
@@ -109,13 +73,7 @@ pub async fn get_login_code(url:&str, email: &str, password: &str, state: &str) 
         Err(e) => Err(e.to_string()),
     }
 }
-// #[tauri::command(async)]
-// pub fn get_login_code(url: &str, email: &str, password: &str) -> Result<String, String> {
-//     match perform_login_browser(url, email, password) {
-//         Ok(url) => Ok(url),
-//         Err(e) => Err(e.to_string()),
-//     }
-// }
+
 
 #[tauri::command(async)]
 pub async fn get_authenticate_info(url: &str) -> Result<String, String> {
@@ -124,8 +82,6 @@ pub async fn get_authenticate_info(url: &str) -> Result<String, String> {
         Err(e) => Err(e.to_string()),
     }
 }
-
-
 
 #[tauri::command]
 pub fn execute_process(path: String, filename: String, args: String, is_admin: bool) -> Result<String, String> {
