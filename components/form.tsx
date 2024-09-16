@@ -11,6 +11,38 @@ import { open } from '@tauri-apps/api/dialog';
 
 
 export const LoginForm = () => {
+  
+  interface LoginResponse {
+    "resultCode": number,
+    "resultMsg": string,
+    "returnUrl": string,
+    "resultData": string,
+    "isAutoLoginSuccess": boolean
+  }
+
+  interface OAuthResponse {
+    _resultCode: number,
+    _resultMsg: string,
+    _returnUrl: string
+  }
+
+  interface GameStartValidationResponse {
+    _authString: string,
+    _returnUrl: string,
+    _resultCode: number,
+    _resultMessage: string,
+    _messageStringKey: string,
+    _resultData: any,
+    _httpStatusCode: number
+  }
+  
+  interface GetTokenResponse {
+    _accountToken: string,
+    _resultCode: number,
+    _returnUrl: string,
+    _state: string
+  }
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [failed, setFailed] = useState(false);
@@ -40,15 +72,6 @@ export const LoginForm = () => {
     }
   }
 
-
-  interface LoginResponse {
-    "resultCode": number,
-    "resultMsg": string,
-    "returnUrl": string,
-    "resultData": string,
-    "isAutoLoginSuccess": boolean
-  }
-
   const getCodeFromUrl = async (queryString:string) => {
     try {
       const url = decodeURIComponent(queryString)
@@ -62,11 +85,6 @@ export const LoginForm = () => {
 
   const handleOauth = async (token:string, state:string, code:string) => {
     try {
-      interface OAuthResponse {
-        _resultCode: number,
-        _resultMsg: string,
-        _returnUrl: string
-      }
       const payload = {
         _accountToken: token,
         _code: code,
@@ -96,15 +114,6 @@ export const LoginForm = () => {
       const payload = {
         _gameCode: 150,
         _cultureCode: "en-us"
-      }
-      interface GameStartValidationResponse {
-        _authString: string,
-        _returnUrl: string,
-        _resultCode: number,
-        _resultMessage: string,
-        _messageStringKey: string,
-        _resultData: any,
-        _httpStatusCode: number
       }
       const headers = {
         Authorization: `Bearer ${token}`,
@@ -151,41 +160,9 @@ export const LoginForm = () => {
     }
   }
 
-  type QueryParams = { [key: string]: string };
-
-  function parseQueryParams(url: string): QueryParams {
-    // Extract the query string from the URL
-    const queryString = url.split('?')[1];
-    
-    // If there's no query string, return an empty object
-    if (!queryString) return {};
-    
-    // Split the query string into key-value pairs
-    const pairs = queryString.split('&');
-    
-    // Reduce the pairs into a single object
-    const result = pairs.reduce<QueryParams>((acc, pair) => {
-      const [key, value] = pair.split('=');
-      // Decode the key and value, and add to the accumulator object
-      if (key && value) {
-        acc[decodeURIComponent(key)] = decodeURIComponent(value);
-      }
-      return acc;
-    }, {});
-    
-    return result;
-  }
-
   const handleSubmit = async () => {
     try {
       const game_path = await handleCheckConfig();
-      interface GetTokenResponse {
-        _accountToken: string,
-        _resultCode: number,
-        _returnUrl: string,
-        _state: string
-      }
-
       const get_token = await createToken() as GetTokenResponse;
       const return_url:string = get_token._returnUrl;
       const state:string = get_token._state
