@@ -243,7 +243,6 @@ export const LoginForm = () => {
       });
       setLoading(false);
       // console.log(err)
-      // let err = execute_process("G:\\FNZ\\BDO\\Black Desert\\bin64\\", "BlackDesert64.exe", game_string, true)
     } catch (error: any) {
       // -10002 tryagain
       // -30002 email otp
