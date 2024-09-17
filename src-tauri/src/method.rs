@@ -1,8 +1,6 @@
 use libloading;
 use reqwest::{self, cookie::CookieStore};
-use std::error::Error;
 use std::ffi::CString;
-use std::time::Duration;
 use std::{str::FromStr, sync::Arc};
 
 fn call_dynamic(
@@ -16,9 +14,7 @@ fn call_dynamic(
         parent_path.pop();
         let lib_path = format!("{}\\PAAssist.dll", parent_path.display());
         let lib: libloading::Library = libloading::Library::new(lib_path)?;
-        let func: libloading::Symbol<
-            unsafe extern "C" fn(*const i8, *const i8, *const i8, bool) -> i64,
-        > = lib.get(b"executeProcess\0")?;
+        let func: libloading::Symbol<unsafe extern "C" fn(*const i8, *const i8, *const i8, bool) -> i64> = lib.get(b"executeProcess\0")?;
         let arg1 = CString::new(path)?;
         let arg2 = CString::new(filename)?;
         let arg3 = CString::new(args)?;
