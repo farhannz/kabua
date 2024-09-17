@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@nextui-org/button";
-import {Input} from "@nextui-org/input"
-import {fetch, Body, ResponseType, getClient} from '@tauri-apps/api/http';
+import { Modal, ModalBody, ModalContent, ModalHeader, ModalFooter, useDisclosure } from "@nextui-org/modal";
+import { Input } from "@nextui-org/input"
+import {fetch, Body, ResponseType} from '@tauri-apps/api/http';
 import { invoke } from '@tauri-apps/api/tauri'
 import {envConfig} from "@/config/env"
 import {readTextFile, BaseDirectory, exists, writeTextFile, createDir} from "@tauri-apps/api/fs"
@@ -48,6 +49,8 @@ export const LoginForm = () => {
   const [failed, setFailed] = useState(false);
   const [configExists, setConfigExists] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const validateEmail = (value:string) => value.match(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,4}$/i);
 
@@ -191,23 +194,40 @@ export const LoginForm = () => {
       setLoading(false)
       // console.log(err)
       // let err = execute_process("G:\\FNZ\\BDO\\Black Desert\\bin64\\", "BlackDesert64.exe", game_string, true)
-    } catch (error) {
+    } catch (error:any) {
+      // -10002 tryagain
+      // -30002 email otp
       console.log(error)
       setLoading(false)
+      setErrorMsg(error)
+      onOpen()
     }
   }
 
-  const handleKeyDown = async (event) => {
+  const handleKeyDown = (event:any) => {
     if (event.key === 'Enter') {
-      await handleSubmit();
+      handleSubmit();
     }
   };
 
   return (
     <div className="flex w-full flex-col items-center justify-center flex-wrap md:flex-nowrap gap-4">
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">Error</ModalHeader>
+          <ModalBody>
+            <p>{errorMsg}</p>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="danger" onPress={onClose}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
       <div className="flex w-2/3 flex-col items-center justify-center flex-wrap md:flex-nowrap gap-4">
-        <Input isDisabled={loading} isRequired size="lg" radius="sm" type="email" label="Email" autoComplete="none" isInvalid={isInvalid} color={isInvalid ? "danger" : "default"} errorMessage="Please enter a valid email" onValueChange={setEmail}/>
-        <Input isDisabled={loading} size="lg" radius="sm" type="password" label="Password" autoComplete="none" onValueChange={setPassword}/>
+        <Input isDisabled={loading} isRequired size="lg" radius="sm" type="email" label="Email" autoComplete="none" isInvalid={isInvalid} color={isInvalid ? "danger" : "default"} onKeyDown={handleKeyDown} errorMessage="Please enter a valid email" onValueChange={setEmail}/>
+        <Input isDisabled={loading} size="lg" radius="sm" type="password" label="Password" autoComplete="none" onValueChange={setPassword} onKeyDown={handleKeyDown}/>
       </div>
       <div className="flex w-2/3 flex-row-reverse items-right justify-right flex-wrap md:flex-nowrap gap-4">
         <Button isLoading={loading} size="lg" radius="sm" color="primary" onPress={handleSubmit} onKeyDown={handleKeyDown}>Sign In</Button>
