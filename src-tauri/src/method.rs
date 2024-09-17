@@ -83,7 +83,7 @@ pub async fn perform_login(
     let _auth_response = client.get(auth_url.clone()).send().await?;
     let response: reqwest::Response = client
         .post(target_url.clone())
-        .header("User-Agent", "HTTPie")
+        .header("User-Agent", "pearlabyss")
         .header("X-Requested-With", "XHMLHttpRequest")
         .form(&params)
         .send()
