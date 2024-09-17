@@ -18,4 +18,4 @@ A Custom launcher to quickly login and start the game for SEA/TH region.
 ## Known limitations
 - No OTP Support
 - No Steam Support
-- No Steam Support
+- No Captcha Solver
