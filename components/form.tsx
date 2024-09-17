@@ -47,6 +47,7 @@ export const LoginForm = () => {
   const [password, setPassword] = useState("");
   const [failed, setFailed] = useState(false);
   const [configExists, setConfigExists] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const validateEmail = (value:string) => value.match(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,4}$/i);
 
@@ -162,6 +163,7 @@ export const LoginForm = () => {
 
   const handleSubmit = async () => {
     try {
+      setLoading(true)
       const game_path = await handleCheckConfig();
       const get_token = await createToken() as GetTokenResponse;
       const return_url:string = get_token._returnUrl;
@@ -186,21 +188,29 @@ export const LoginForm = () => {
       }
       const game_string = await handleGameStartValidation(token);
       const err = await invoke("execute_process", {path: game_path, filename: "BlackDesert64.exe", args: game_string!, isAdmin: true})
+      setLoading(false)
       // console.log(err)
       // let err = execute_process("G:\\FNZ\\BDO\\Black Desert\\bin64\\", "BlackDesert64.exe", game_string, true)
     } catch (error) {
       console.log(error)
+      setLoading(false)
     }
   }
+
+  const handleKeyDown = async (event) => {
+    if (event.key === 'Enter') {
+      await handleSubmit();
+    }
+  };
 
   return (
     <div className="flex w-full flex-col items-center justify-center flex-wrap md:flex-nowrap gap-4">
       <div className="flex w-2/3 flex-col items-center justify-center flex-wrap md:flex-nowrap gap-4">
-        <Input isRequired size="lg" radius="sm" type="email" label="Email" autoComplete="none" isInvalid={isInvalid} color={isInvalid ? "danger" : "default"} errorMessage="Please enter a valid email" onValueChange={setEmail}/>
-        <Input size="lg" radius="sm" type="password" label="Password" autoComplete="none" onValueChange={setPassword}/>
+        <Input isDisabled={loading} isRequired size="lg" radius="sm" type="email" label="Email" autoComplete="none" isInvalid={isInvalid} color={isInvalid ? "danger" : "default"} errorMessage="Please enter a valid email" onValueChange={setEmail}/>
+        <Input isDisabled={loading} size="lg" radius="sm" type="password" label="Password" autoComplete="none" onValueChange={setPassword}/>
       </div>
       <div className="flex w-2/3 flex-row-reverse items-right justify-right flex-wrap md:flex-nowrap gap-4">
-        <Button size="lg" radius="sm" color="primary" onPress={handleSubmit} >Sign In</Button>
+        <Button isLoading={loading} size="lg" radius="sm" color="primary" onPress={handleSubmit} onKeyDown={handleKeyDown}>Sign In</Button>
       </div>
     </div>
   );
