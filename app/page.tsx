@@ -1,11 +1,6 @@
 import { Link } from "@nextui-org/link";
-import { Snippet } from "@nextui-org/snippet";
-import { Code } from "@nextui-org/code";
 import { button as buttonStyles } from "@nextui-org/theme";
-import {LoginForm} from "@/components/form"
-
-import { open } from '@tauri-apps/api/dialog'
-
+import { LoginForm } from "@/components/form";
 import { siteConfig } from "@/config/site";
 import { title, subtitle } from "@/components/primitives";
 import { GithubIcon } from "@/components/icons";
@@ -19,7 +14,7 @@ export default function Home() {
           A Custom Launcher for BDO
         </h2>
       </div>
-      <LoginForm/>
+      <LoginForm />
       <div className="flex">
         <Link
           isExternal
