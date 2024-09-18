@@ -25,7 +25,7 @@
       },
       "fs": {
         "all": true,
-        "scope": ["$APPCONFIG","$APPCONFIG/*", "$APPDATA", "$APPDATA/com.kabua.dev/*"]
+        "scope": ["$RESOURCE","$RESOURCE/*"]
       }
     },
     "bundle": {
@@ -43,7 +43,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.kabua.dev",
+      "identifier": "Kabua-Launcher",
       "longDescription": "",
       "macOS": {
         "entitlements": null,

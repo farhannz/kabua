@@ -171,15 +171,13 @@ export const LoginForm = () => {
 
   const handleCheckConfig = async () => {
     try {
-      if (!(await exists("", { dir: BaseDirectory.App }))) {
-        await createDir("", { dir: BaseDirectory.App });
-      }
       const config_exists = await exists("config.json", {
-        dir: BaseDirectory.AppConfig,
+        dir: BaseDirectory.Resource,
       });
+      console.log(config_exists)
       if (config_exists) {
         const game_config = await readTextFile("config.json", {
-          dir: BaseDirectory.AppConfig,
+          dir: BaseDirectory.Resource,
         });
         const js = JSON.parse(game_config);
         setConfigExists(config_exists);
@@ -194,7 +192,7 @@ export const LoginForm = () => {
         const write_config = await writeTextFile(
           "config.json",
           JSON.stringify(game_config, undefined, 4),
-          { dir: BaseDirectory.AppConfig }
+          { dir: BaseDirectory.Resource }
         );
         return game_config.game_path;
         // console.log(game_path)
