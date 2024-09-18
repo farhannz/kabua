@@ -1,8 +1,11 @@
 Kabua's Launcher
 
-## A Custom Launcher for BDO
-:warning: **`WIP - This repository is at the early stage.`**    
-A Custom launcher to quickly login and start the game for SEA/TH region.
+## :warning: **`WIP - This repository is at the early stage.`**    
+## Description
+A Custom launcher to quickly login and start the game for SEA/TH region.   
+<div align='center'>
+    <img src="docs/imgs/image.png" alt="drawing" width="500"/>
+</div>   
 
 ## How to use
 - TBD
