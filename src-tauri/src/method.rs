@@ -15,14 +15,15 @@ fn call_dynamic(
     if !check_file? {
         return Err("File or path not found, try fixing your config.json".into());
     }
-
-    let set_location = format!("Set-Location -Path \"{path}\"; ");
-    let powershell_command = format!("Start-Process '{}' -Verb runAs -ArgumentList \"{}\"", filename, args);
-    println!("{set_location}{powershell_command}");
-    let output = Command::new("powershell")
-        .arg("-Command")
-        .arg(&set_location)
-        .arg(&powershell_command)
+    
+    let output = Command::new("cmd")
+        .arg("/c")
+        .arg("start")
+        .arg("/min")
+        .arg("/d")
+        .arg(path)
+        .arg(filename)
+        .arg(args)
         .output()?;
     return Ok(output.status.code().unwrap());
     
