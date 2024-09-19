@@ -22,7 +22,6 @@ import {
   createDir,
 } from "@tauri-apps/api/fs";
 import { open } from "@tauri-apps/api/dialog";
-
 export const LoginForm = () => {
   interface LoginResponse {
     resultCode: number;
@@ -90,7 +89,7 @@ export const LoginForm = () => {
       }
       return response.data;
     } catch (error) {
-      console.log(error);
+      throw error
     }
   };
 
@@ -134,7 +133,7 @@ export const LoginForm = () => {
       }
       return data._resultCode;
     } catch (error) {
-      console.log(error);
+      throw error
     }
   };
 
@@ -165,7 +164,7 @@ export const LoginForm = () => {
       }
       return data._authString;
     } catch (error) {
-      console.log(error);
+      throw error
     }
   };
 
