@@ -1,26 +1,48 @@
-use libloading;
 use reqwest::{self, cookie::CookieStore};
-use std::ffi::CString;
-use std::{str::FromStr, sync::Arc};
+use std::{str::FromStr, sync::Arc, fs};
+use std::process::{Command};
 
 fn call_dynamic(
     path: String,
     filename: String,
     args: String,
     is_admin: bool,
-) -> Result<i64, Box<dyn std::error::Error>> {
-    unsafe {
-        let mut parent_path = std::env::current_exe().unwrap();
-        parent_path.pop();
-        let lib_path = format!("{}\\PAAssist.dll", parent_path.display());
-        let lib: libloading::Library = libloading::Library::new(lib_path)?;
-        let func: libloading::Symbol<unsafe extern "C" fn(*const i8, *const i8, *const i8, bool) -> i64> = lib.get(b"executeProcess\0")?;
-        let arg1 = CString::new(path)?;
-        let arg2 = CString::new(filename)?;
-        let arg3 = CString::new(args)?;
-        let flag = is_admin; // bool argument
-        Ok(func(arg1.as_ptr(), arg2.as_ptr(), arg3.as_ptr(), flag))
+) -> Result<i32, Box<dyn std::error::Error>> {
+    let check_file = match fs::exists(format!("{path}\\{filename}")) {
+        Ok(code) => Ok(code),
+        Err(e) => Err(e),
+    };
+    if !check_file? {
+        return Err("File or path not found, try fixing your config.json".into());
     }
+
+    let set_location = format!("Set-Location -Path \"{path}\"; ");
+    let powershell_command = format!("Start-Process '{}' -Verb runAs -ArgumentList \"{}\"", filename, args);
+    println!("{set_location}{powershell_command}");
+    let output = Command::new("powershell")
+        .arg("-Command")
+        .arg(&set_location)
+        .arg(&powershell_command)
+        .output()?;
+    return Ok(output.status.code().unwrap());
+    
+    /*
+        // unsafe {
+        //     let mut parent_path = std::env::current_exe().unwrap();
+        //     parent_path.pop();
+        //     let lib_path = format!("{}\\PAAssist.dll", parent_path.display());
+        //     let lib: libloading::Library = libloading::Library::new(lib_path)?;
+        //     let func: libloading::Symbol<unsafe extern "C" fn(*const i8, *const i8, *const i8, bool) -> i64> = lib.get(b"executeProcess\0")?;
+        //     let arg1 = CString::new(path)?;
+        //     let arg2 = CString::new(filename)?;
+        //     let arg3 = CString::new(args)?;
+        //     let flag = is_admin; // bool argument
+        //     Ok(func(arg1.as_ptr(), arg2.as_ptr(), arg3.as_ptr(), flag))
+        // }
+        // let output = Command::new(file_path)
+        //     .args([args])
+        //     .output()?;
+     */
 }
 
 pub async fn perform_authenticate_info(url: &str) -> Result<String, Box<dyn std::error::Error>> {
