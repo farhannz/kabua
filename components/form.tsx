@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { Button } from "@nextui-org/button";
+import { FolderOpen } from 'lucide-react'
 import {
   Modal,
   ModalBody,
@@ -60,6 +61,7 @@ export const LoginForm = () => {
   const [configExists, setConfigExists] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [gamePath, setGamePath] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const validateEmail = (value: string) =>
@@ -173,7 +175,6 @@ export const LoginForm = () => {
       const config_exists = await exists("config.json", {
         dir: BaseDirectory.Resource,
       });
-      console.log(config_exists)
       if (config_exists) {
         const game_config = await readTextFile("config.json", {
           dir: BaseDirectory.Resource,
@@ -183,19 +184,8 @@ export const LoginForm = () => {
         const game_path = js.game_path;
         console.log(game_config);
         return game_path;
-      } else {
-        const path = await open({ directory: true });
-        const game_config = {
-          game_path: path,
-        };
-        const write_config = await writeTextFile(
-          "config.json",
-          JSON.stringify(game_config, undefined, 4),
-          { dir: BaseDirectory.Resource }
-        );
-        return game_config.game_path;
-        // console.log(game_path)
       }
+      return null;
     } catch (error) {
       throw error;
     }
@@ -203,8 +193,12 @@ export const LoginForm = () => {
 
   const handleSubmit = async () => {
     try {
+      if (!gamePath) {
+        throw `File or path not found, try fixing your game path`;
+      }
       setLoading(true);
-      const game_path = await handleCheckConfig();
+      // const game_path = await handleCheckConfig();
+      // setGamePath(game_path);
       const get_token = (await createToken()) as GetTokenResponse;
       const return_url: string = get_token._returnUrl;
       const state: string = get_token._state;
@@ -233,13 +227,13 @@ export const LoginForm = () => {
       }
       const game_string = await handleGameStartValidation(token);
       const err = await invoke("execute_process", {
-        path: game_path,
+        path: gamePath,
         filename: "BlackDesert64.exe",
         args: game_string!,
         isAdmin: true,
       });
       setLoading(false);
-      // console.log(err)
+      console.log(err)
     } catch (error: any) {
       // -10002 tryagain
       // -30002 email otp
@@ -256,6 +250,19 @@ export const LoginForm = () => {
     }
   };
 
+  const handleSetGamePath = async () => {
+    const path = await open({ directory: true });
+    const game_config = {
+      game_path: path,
+    };
+    const write_config = await writeTextFile(
+      "config.json",
+      JSON.stringify(game_config, undefined, 4),
+      { dir: BaseDirectory.Resource }
+    );
+    setGamePath(path as string)
+  }
+
   return (
     <div className="flex w-full flex-col items-center justify-center flex-wrap md:flex-nowrap gap-4">
       <Modal isOpen={isOpen} onClose={onClose}>
@@ -270,7 +277,7 @@ export const LoginForm = () => {
             </Button>
           </ModalFooter>
         </ModalContent>
-      </Modal>
+      </Modal>      
       <div className="flex w-2/3 flex-col items-center justify-center flex-wrap md:flex-nowrap gap-4">
         <Input
           isDisabled={loading}
@@ -297,6 +304,31 @@ export const LoginForm = () => {
           onKeyDown={handleKeyDown}
         />
       </div>
+      <div className="flex w-2/3 flex-col items-left justify-left flex-wrap md:flex-nowrap gap-4">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-gray-400">Game Path </p>
+            <Button 
+              size="sm" 
+              variant="flat" 
+              color="default"
+              startContent={<FolderOpen className="w-4 h-4" />}
+              onClick={handleSetGamePath}
+            >
+              Browse
+            </Button>
+          </div>
+
+          <Input
+            isReadOnly
+            placeholder="Selected path will appear here (e.g., D:/Black Desert/bin64)."
+            value={gamePath}
+            isRequired
+          >
+          </Input>
+        </div>
+      </div>
+
       <div className="flex w-2/3 flex-row-reverse items-right justify-right flex-wrap md:flex-nowrap gap-4">
         <Button
           isLoading={loading}
