@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Button } from "@nextui-org/button";
 import { FolderOpen } from 'lucide-react'
 import {
@@ -262,6 +262,22 @@ export const LoginForm = () => {
     );
     setGamePath(path as string)
   }
+
+
+  const hasPrompted = useRef(false);
+  useEffect(()=> {
+    const fetchConfig = async () => {
+      if (!hasPrompted.current) {
+        try {
+          const game_path = await handleCheckConfig();
+          setGamePath(game_path);
+        } catch (error) {
+          console.log(error)
+        }
+      }
+    };
+    fetchConfig();
+  }, [])
 
   return (
     <div className="flex w-full flex-col items-center justify-center flex-wrap md:flex-nowrap gap-4">
